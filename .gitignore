@@ -24,3 +24,8 @@ dist-ssr
 *.sw?
 /Nauja-repozitorija-2025-10-08-test-clonas/
 /the-movie-db-praktika/
+
+# Supabase aplinkos konfigūracija
+.env
+.env.*
+!.env.example

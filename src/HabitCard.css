@@ -1,0 +1,5 @@
+.habit-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+.habit-card h2 { overflow-wrap: anywhere; }
+.habit-card > p { margin-top: 10px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.badge { border-radius: 20px; background: var(--accent-bg); color: var(--accent); padding: 4px 10px; font-size: 13px; }
+.badge.complete { color: #86efac; background: #153a28; }

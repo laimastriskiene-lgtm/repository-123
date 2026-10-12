@@ -1,0 +1,8 @@
+.habit-form fieldset { border: 0; padding: 0; margin: 0; min-width: 0; display: grid; gap: 16px; }
+.habit-form label { display: grid; gap: 6px; }
+.habit-form .weekday-field { border: 1px solid var(--border); padding: 12px; border-radius: 10px; }
+.habit-form legend { padding: 0 6px; }
+.weekdays { display: flex; flex-wrap: wrap; gap: 12px; }
+.weekdays label { display: flex; align-items: center; font-size: 14px; }
+.weekdays input { width: auto; }
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); gap: 14px; }

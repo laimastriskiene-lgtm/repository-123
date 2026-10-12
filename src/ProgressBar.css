@@ -114,3 +114,7 @@
     font-size: 24px;
   }
 }
+
+.progress-card__top { flex-wrap: wrap; }
+.progress-card__top > div { min-width: 0; flex: 1 1 220px; }
+.progress-card__top h2 { overflow-wrap: anywhere; }

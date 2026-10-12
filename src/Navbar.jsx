@@ -25,12 +25,12 @@ function FlowlyLogo() {
   );
 }
 
-function Navbar({ activePage, onNavigate }) {
+function Navbar({ activePage, onNavigate, isLoggedIn }) {
   const navigationItems = [
-    { label: "Pagrindinis", page: "home", disabled: false },
-    { label: "Užduotys", page: null, disabled: true },
-    { label: "Progresas", page: null, disabled: true },
-    { label: "Profilis", page: "profile", disabled: false },
+    { label: "Įpročiai", page: "habits", disabled: false },
+    { label: "Istorija", page: "history", disabled: false },
+    { label: "Progresas", page: "progress", disabled: false },
+
   ];
 
   return (
@@ -43,7 +43,7 @@ function Navbar({ activePage, onNavigate }) {
         </div>
 
         <div className="navbar__links">
-          {navigationItems.map((item) => (
+          {(isLoggedIn ? navigationItems : []).map((item) => (
             <button
               className={`navbar__link${
                 activePage === item.page ? " navbar__link--active" : ""

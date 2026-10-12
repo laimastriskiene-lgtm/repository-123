@@ -1,0 +1,5 @@
+.auth-form { margin: 32px auto; }
+.auth-form h1 { font-size: 28px; margin: 0 0 8px; }
+.auth-form > p { margin-bottom: 20px; }
+.auth-form fieldset { border: 0; padding: 0; margin: 0; display: grid; gap: 18px; min-width: 0; }
+.auth-form button { width: 100%; }

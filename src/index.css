@@ -106,3 +106,6 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+/* Flowly įpročių sąsaja išlaiko tamsią temą. */
+:root { --text: #a9a8b3; --text-h: #f4f2f7; --bg: #16171d; --border: #30303d; --accent: #bb7bf6; --accent-bg: rgba(187,123,246,.14); --accent-border: rgba(187,123,246,.5); color-scheme: dark; }

@@ -199,3 +199,9 @@
 .login-card {
   box-sizing: border-box;
 }
+
+.app-message { margin: 24px auto; padding: 0 20px; max-width: 900px; }
+.login-error { color: #fca5a5; }
+
+.welcome-message p { overflow-wrap: anywhere; }
+.login-card h1 { font-size: 28px; margin: 0 0 12px; overflow-wrap: anywhere; }

@@ -1,0 +1,4 @@
+.history-list { display: grid; gap: 18px; }
+.history-rows { list-style: none; margin: 14px 0 0; padding: 0; }
+.history-rows li { display: flex; flex-wrap: wrap; gap: 12px; padding: 12px 0; border-top: 1px solid var(--border); overflow-wrap: anywhere; }
+.history-rows li p { width: 100%; white-space: pre-wrap; }

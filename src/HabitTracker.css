@@ -1,0 +1,22 @@
+.habit-tracker { width: min(1120px, 100%); margin: 0 auto; padding: 24px 20px 48px; box-sizing: border-box; }
+.habit-tracker h1 { font-size: 32px; margin: 0 0 8px; }
+.panel { padding: 24px; border: 1px solid var(--border); border-radius: 16px; background: #191923; box-shadow: var(--shadow); min-width: 0; }
+.tracker-heading, .tracker-toolbar { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 18px; align-items: center; margin-bottom: 24px; }
+.habit-tracker label { display: grid; gap: 6px; }
+.habit-tracker input, .habit-tracker select, .habit-tracker textarea { width: 100%; min-width: 0; box-sizing: border-box; border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; background: #111119; color: var(--text-h); font: inherit; }
+.habit-tracker textarea { min-height: 72px; resize: vertical; }
+.habit-tracker button { border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; background: #22222e; color: var(--text-h); font: inherit; cursor: pointer; }
+.habit-tracker .primary { background: #9c5fe8; color: white; border-color: #9c5fe8; }
+.habit-tracker .danger { color: #fca5a5; }
+.habit-tracker button:disabled { opacity: .55; cursor: not-allowed; }
+.habit-tracker :is(input, select, textarea, button):focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.habit-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 20px; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.hint { color: var(--text); font-size: 14px; line-height: 1.5; }
+.error { color: #fca5a5; margin-top: 12px; overflow-wrap: anywhere; }
+.habit-form { margin-bottom: 24px; }
+.progress-list { display: grid; gap: 18px; }
+.progress-list .progress-card { width: 100%; box-sizing: border-box; }
+.habit-progress { height: 12px; margin-top: 20px; border-radius: 8px; overflow: hidden; background: #30303d; }
+.habit-progress span { display: block; height: 100%; background: #9c5fe8; }
+@media (max-width: 580px) { .habit-tracker { padding: 20px 12px; } .panel { padding: 18px; } .tracker-toolbar > label { width: 100%; } .tracker-heading > label { width: 100%; } .actions button { flex: 1 1 160px; } }
