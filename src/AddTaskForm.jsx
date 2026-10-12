@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { createTask } from "./tasksApi";
 import "./AddTaskForm.css";
 
-function AddTaskForm({ onAddTask }) {
+function AddTaskForm({ onAddTask, userId }) {
   const [isOpen, setIsOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [deadline, setDeadline] = useState("");
@@ -30,7 +30,7 @@ function AddTaskForm({ onAddTask }) {
         title: trimmedTitle,
         status,
         deadline,
-      });
+      }, userId);
       onAddTask(savedTask);
       setTitle("");
       setDeadline("");
