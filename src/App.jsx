@@ -5,12 +5,13 @@ import Navbar from "./Navbar";
 import AddTaskForm from "./AddTaskForm";
 import Profile from "./Profile";
 import WeatherWidget from "./WeatherWidget";
-import { getTasks, deleteTask, updateTaskTitle } from "./tasksApi";
+import { getTasks, deleteTask, updateTask, updateTaskTitle, updateTaskStatus } from "./tasksApi";
 import { loginUser, registerUser, restoreSession, logoutUser } from "./authApi";
 import "./App.css";
 
 function App() {
   const activeUserId = useRef(null);
+  const taskMutations = useRef(new Set());
   const [user, setUser] = useState(null);
   const [isRegistering, setIsRegistering] = useState(false);
   const [authLoading, setAuthLoading] = useState(false);
@@ -121,38 +122,65 @@ function App() {
     }
   }
 
-  async function handleDeleteTask(taskId) {
+  async function mutateTask(taskId, callback) {
     const ownerId = activeUserId.current;
-    await deleteTask(taskId, ownerId);
-    if (activeUserId.current !== ownerId) return;
-    setTasks((currentTasks) => currentTasks.filter((task) => task.id !== taskId));
+    if (!ownerId) throw new Error("Prisijunkite prie paskyros.");
+    const mutationKey = ownerId + ":" + taskId;
+    if (taskMutations.current.has(mutationKey)) throw new Error("Palaukite, kol bus išsaugotas ankstesnis pakeitimas.");
+    taskMutations.current.add(mutationKey);
+    try {
+      await callback(ownerId);
+    } finally {
+      taskMutations.current.delete(mutationKey);
+    }
+  }
+
+  async function handleDeleteTask(taskId) {
+    await mutateTask(taskId, async (ownerId) => {
+      await deleteTask(taskId, ownerId);
+      if (activeUserId.current !== ownerId) return;
+      setTasks((currentTasks) => currentTasks.filter((task) => task.id !== taskId));
+    });
   }
 
   async function handleTaskTitleChange(taskId, title) {
-    const ownerId = activeUserId.current;
-    const savedTitle = await updateTaskTitle(taskId, title, ownerId);
-    if (activeUserId.current !== ownerId) return;
-    setTasks((currentTasks) =>
-      currentTasks.map((task) =>
+    await mutateTask(taskId, async (ownerId) => {
+      const savedTitle = await updateTaskTitle(taskId, title, ownerId);
+      if (activeUserId.current !== ownerId) return;
+      setTasks((currentTasks) => currentTasks.map((task) =>
         task.id === taskId ? { ...task, title: savedTitle } : task,
-      ),
-    );
+      ));
+    });
   }
 
-  function handleTaskStatusChange(taskId, status) {
-    setTasks((currentTasks) =>
-      currentTasks.map((task) =>
+  async function handleTaskStatusChange(taskId, status) {
+    await mutateTask(taskId, async (ownerId) => {
+      const previousTask = tasks.find((task) => task.id === taskId && task.userId === ownerId);
+      if (!previousTask) throw new Error("Užduotis nepriskirta šiai paskyrai.");
+      setTasks((currentTasks) => currentTasks.map((task) =>
         task.id === taskId ? { ...task, status } : task,
-      ),
-    );
+      ));
+      try {
+        await updateTaskStatus(taskId, status, ownerId);
+      } catch (error) {
+        if (activeUserId.current === ownerId) {
+          setTasks((currentTasks) => currentTasks.map((task) =>
+            task.id === taskId ? { ...task, status: previousTask.status } : task,
+          ));
+        }
+        throw error;
+      }
+    });
   }
 
-  function handleTaskDeadlineChange(taskId, deadline) {
-    setTasks((currentTasks) =>
-      currentTasks.map((task) =>
-        task.id === taskId ? { ...task, deadline } : task,
-      ),
-    );
+  async function handleTaskDeadlineChange(taskId, deadline) {
+    await mutateTask(taskId, async (ownerId) => {
+      const savedTask = await updateTask(taskId, { deadline }, ownerId);
+      if (activeUserId.current !== ownerId) return;
+      setTasks((currentTasks) => currentTasks.map((task) =>
+        task.id === taskId ? savedTask : task,
+      ));
+    });
   }
 
   const today = new Date();

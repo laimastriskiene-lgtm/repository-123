@@ -26,7 +26,7 @@ function toTask(record) {
     id: String(record.id),
     userId: record.userId == null ? "" : String(record.userId),
     title: record.task ?? "",
-    status: record.status || "Nepradėta",
+    status: record.status === "Nepradėta" ? "Suplanuota" : record.status || "Suplanuota",
     deadline: record.Deadline ?? "",
   };
 }
@@ -113,32 +113,10 @@ export async function deleteTask(taskId, userId) {
   });
 }
 
-// PUT siunčia visus API laukus, todėl pirmiausia gauna jų dabartines reikšmes.
+// Atnaujina pavadinimą per bendrą PUT funkciją.
 export async function updateTaskTitle(taskId, title, userId) {
-  requireUserId(userId);
-  const trimmedTitle = title.trim();
-  if (!trimmedTitle) throw new Error("Įveskite užduoties pavadinimą.");
-
-  const url = taskUrl(taskId);
-  const currentTask = await request(url, {
-    method: "GET",
-    headers: { ...TASKS_HEADERS },
-  });
-  assertOwner(currentTask, userId);
-  await request(url, {
-    method: "PUT",
-    headers: {
-      ...TASKS_HEADERS,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      userId: String(currentTask.userId),
-      task: trimmedTitle,
-      status: currentTask.status,
-      Deadline: currentTask.Deadline,
-    }),
-  });
-  return trimmedTitle;
+  const saved = await updateTask(taskId, { title }, userId);
+  return saved.title;
 }
 
 function requireUserId(userId) {
@@ -151,4 +129,43 @@ function assertOwner(record, userId) {
   if (record?.userId == null || String(record.userId) !== ownerId) {
     throw new Error("Užduotis nepriskirta šiai paskyrai. Patikrinkite tasklist userId lauką.");
   }
+}
+
+// Atnaujina būseną per bendrą PUT funkciją.
+export async function updateTaskStatus(taskId, status, userId) {
+  const saved = await updateTask(taskId, { status }, userId);
+  return saved.status;
+}
+
+// Gauna konkrečią užduotį ir patikrina savininką.
+export async function getTask(taskId, userId) {
+  requireUserId(userId);
+  const record = await request(taskUrl(taskId), {
+    method: "GET", headers: { ...TASKS_HEADERS }, cache: "no-store",
+  });
+  assertOwner(record, userId);
+  return toTask(record);
+}
+
+// PUT išlaiko nepakeistus laukus ir patikrina išsaugotą rezultatą.
+export async function updateTask(taskId, changes, userId) {
+  const current = await getTask(taskId, userId);
+  const task = { ...current, ...changes };
+  const title = task.title.trim();
+  if (!title) throw new Error("Įveskite užduoties pavadinimą.");
+  if (!["Suplanuota", "Vykdoma", "Atlikta"].includes(task.status)) {
+    throw new Error("Netinkama užduoties būsena.");
+  }
+  await request(taskUrl(taskId), {
+    method: "PUT",
+    headers: { ...TASKS_HEADERS, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      userId: current.userId, task: title, status: task.status, Deadline: task.deadline,
+    }),
+  });
+  const saved = await getTask(taskId, userId);
+  if (saved.title !== title || saved.status !== task.status || saved.deadline !== task.deadline) {
+    throw new Error("API neišsaugojo užduoties pakeitimų.");
+  }
+  return saved;
 }
