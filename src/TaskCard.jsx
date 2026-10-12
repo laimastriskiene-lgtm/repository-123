@@ -30,6 +30,22 @@ function TaskCard({ task, onStatusChange, onDeadlineChange, onDelete, onTitleCha
     }
   }
 
+  async function handleDeadlineChange(event) {
+    const deadline = event.target.value;
+    if (savingRef.current || !onDeadlineChange) return;
+    savingRef.current = true;
+    setIsSaving(true);
+    setError("");
+    try {
+      await onDeadlineChange(task.id, deadline);
+    } catch (saveError) {
+      setError("Nepavyko išsaugoti termino. " + saveError.message);
+    } finally {
+      savingRef.current = false;
+      setIsSaving(false);
+    }
+  }
+
   return (
     <article className={`task-item-card task-item-card--${STATUS_STYLES[status]}`} aria-busy={isSaving}>
       <div className="task-item-card__top">
@@ -50,7 +66,7 @@ function TaskCard({ task, onStatusChange, onDeadlineChange, onDelete, onTitleCha
         <label className="task-item-card__deadline">
           <span>Terminas:</span>
           <input type="date" value={task.deadline || ""}
-            onChange={(event) => onDeadlineChange?.(task.id, event.target.value)}
+            onChange={handleDeadlineChange}
             disabled={!onDeadlineChange} aria-label={`Keisti užduoties „${task.title}“ terminą`} />
         </label>
         <TaskActions task={task} onDelete={onDelete} onTitleChange={onTitleChange} />

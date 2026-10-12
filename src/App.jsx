@@ -5,7 +5,7 @@ import Navbar from "./Navbar";
 import AddTaskForm from "./AddTaskForm";
 import Profile from "./Profile";
 import WeatherWidget from "./WeatherWidget";
-import { getTasks, deleteTask, updateTaskTitle, updateTaskStatus } from "./tasksApi";
+import { getTasks, deleteTask, updateTask, updateTaskTitle, updateTaskStatus } from "./tasksApi";
 import { loginUser, registerUser, restoreSession, logoutUser } from "./authApi";
 import "./App.css";
 
@@ -173,12 +173,14 @@ function App() {
     });
   }
 
-  function handleTaskDeadlineChange(taskId, deadline) {
-    setTasks((currentTasks) =>
-      currentTasks.map((task) =>
-        task.id === taskId ? { ...task, deadline } : task,
-      ),
-    );
+  async function handleTaskDeadlineChange(taskId, deadline) {
+    await mutateTask(taskId, async (ownerId) => {
+      const savedTask = await updateTask(taskId, { deadline }, ownerId);
+      if (activeUserId.current !== ownerId) return;
+      setTasks((currentTasks) => currentTasks.map((task) =>
+        task.id === taskId ? savedTask : task,
+      ));
+    });
   }
 
   const today = new Date();
