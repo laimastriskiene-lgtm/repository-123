@@ -4,6 +4,7 @@ import ProgressBar from "./ProgressBar";
 import Navbar from "./Navbar";
 import AddTaskForm from "./AddTaskForm";
 import Profile from "./Profile";
+import WeatherWidget from "./WeatherWidget";
 import { getTasks, deleteTask, updateTaskTitle } from "./tasksApi";
 import { loginUser, registerUser, restoreSession, logoutUser } from "./authApi";
 import "./App.css";
@@ -181,6 +182,7 @@ function App() {
           )}
 
           <main className="login-page">
+            <WeatherWidget />
             {sessionLoading && <p role="status">Tikrinamas prisijungimas…</p>}
             {!sessionLoading && !isLoggedIn && (
               <div className="login-card">
