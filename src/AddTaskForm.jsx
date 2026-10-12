@@ -6,7 +6,7 @@ function AddTaskForm({ onAddTask, userId }) {
   const [isOpen, setIsOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [deadline, setDeadline] = useState("");
-  const [status, setStatus] = useState("Nepradėta");
+  const [status, setStatus] = useState("Suplanuota");
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
   const savingRef = useRef(false);
@@ -34,7 +34,7 @@ function AddTaskForm({ onAddTask, userId }) {
       onAddTask(savedTask);
       setTitle("");
       setDeadline("");
-      setStatus("Nepradėta");
+      setStatus("Suplanuota");
       setIsOpen(false);
     } catch (saveError) {
       setError(`Nepavyko išsaugoti užduoties. ${saveError.message}`);
@@ -48,7 +48,7 @@ function AddTaskForm({ onAddTask, userId }) {
     if (savingRef.current) return;
     setTitle("");
     setDeadline("");
-    setStatus("Nepradėta");
+    setStatus("Suplanuota");
     setError("");
     setIsOpen(false);
   }
@@ -115,7 +115,7 @@ function AddTaskForm({ onAddTask, userId }) {
               onChange={(event) => setStatus(event.target.value)}
               disabled={isSaving}
             >
-              <option value="Nepradėta">Nepradėta</option>
+              <option value="Suplanuota">Suplanuota</option>
               <option value="Vykdoma">Vykdoma</option>
               <option value="Atlikta">Atlikta</option>
             </select>

@@ -26,7 +26,7 @@ function toTask(record) {
     id: String(record.id),
     userId: record.userId == null ? "" : String(record.userId),
     title: record.task ?? "",
-    status: record.status || "Nepradėta",
+    status: record.status === "Nepradėta" ? "Suplanuota" : record.status || "Suplanuota",
     deadline: record.Deadline ?? "",
   };
 }
@@ -151,4 +151,33 @@ function assertOwner(record, userId) {
   if (record?.userId == null || String(record.userId) !== ownerId) {
     throw new Error("Užduotis nepriskirta šiai paskyrai. Patikrinkite tasklist userId lauką.");
   }
+}
+
+// Būsena keičiama tik savininko užduočiai, išlaikant kitus laukus.
+export async function updateTaskStatus(taskId, status, userId) {
+  requireUserId(userId);
+  if (!["Suplanuota", "Vykdoma", "Atlikta"].includes(status)) {
+    throw new Error("Netinkama užduoties būsena.");
+  }
+  const url = taskUrl(taskId);
+  const currentTask = await request(url, {
+    method: "GET", headers: { ...TASKS_HEADERS }, cache: "no-store",
+  });
+  assertOwner(currentTask, userId);
+  await request(url, {
+    method: "PUT",
+    headers: { ...TASKS_HEADERS, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      userId: String(currentTask.userId),
+      task: currentTask.task,
+      status,
+      Deadline: currentTask.Deadline,
+    }),
+  });
+  const persistedTask = await request(url, {
+    method: "GET", headers: { ...TASKS_HEADERS }, cache: "no-store",
+  });
+  assertOwner(persistedTask, userId);
+  if (persistedTask.status !== status) throw new Error("API neišsaugojo pasirinktos būsenos.");
+  return persistedTask.status;
 }
