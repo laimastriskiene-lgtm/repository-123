@@ -1,6 +1,7 @@
+import TaskActions from "./TaskActions";
 import "./TaskList.css";
 
-function TaskList({ tasks = [], loading = false, onStatusChange, onDeadlineChange }) {
+function TaskList({ tasks = [], loading = false, onStatusChange, onDeadlineChange, onDelete, onTitleChange }) {
   if (loading) {
     return (
       <section className="task-card">
@@ -60,6 +61,7 @@ function TaskList({ tasks = [], loading = false, onStatusChange, onDeadlineChang
                 aria-label={`Keisti užduoties „${task.title}“ terminą`}
               />
             </label>
+            <TaskActions task={task} onDelete={onDelete} onTitleChange={onTitleChange} />
           </article>
         ))}
       </div>

@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { createTask } from "./tasksApi";
 import "./AddTaskForm.css";
 
 function AddTaskForm({ onAddTask }) {
@@ -6,29 +7,49 @@ function AddTaskForm({ onAddTask }) {
   const [title, setTitle] = useState("");
   const [deadline, setDeadline] = useState("");
   const [status, setStatus] = useState("Nepradėta");
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState("");
+  const savingRef = useRef(false);
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
+    if (savingRef.current) return;
 
-    const newTask = {
-      id: Date.now(),
-      title,
-      status,
-      deadline,
-    };
+    const trimmedTitle = title.trim();
+    if (!trimmedTitle) {
+      setError("Įveskite užduoties pavadinimą.");
+      return;
+    }
 
-    onAddTask(newTask);
+    savingRef.current = true;
+    setIsSaving(true);
+    setError("");
 
-    setTitle("");
-    setDeadline("");
-    setStatus("Nepradėta");
-    setIsOpen(false);
+    try {
+      const savedTask = await createTask({
+        title: trimmedTitle,
+        status,
+        deadline,
+      });
+      onAddTask(savedTask);
+      setTitle("");
+      setDeadline("");
+      setStatus("Nepradėta");
+      setIsOpen(false);
+    } catch (saveError) {
+      setError(`Nepavyko išsaugoti užduoties. ${saveError.message}`);
+    } finally {
+      savingRef.current = false;
+      setIsSaving(false);
+    }
   }
 
   function handleCancel() {
+    if (savingRef.current) return;
     setTitle("");
     setDeadline("");
     setStatus("Nepradėta");
+    setError("");
     setIsOpen(false);
   }
 
@@ -54,47 +75,45 @@ function AddTaskForm({ onAddTask }) {
             <h2>Nauja užduotis</h2>
             <p>Pridėkite naują užduotį į savo sąrašą</p>
           </div>
-
           <button
             type="button"
             className="add-task__close"
             onClick={handleCancel}
             aria-label="Uždaryti"
+            disabled={isSaving}
           >
             ×
           </button>
         </div>
 
-        <form className="add-task__form" onSubmit={handleSubmit}>
+        <form className="add-task__form" onSubmit={handleSubmit} aria-busy={isSaving}>
           <label className="add-task__field">
             <span>Užduoties pavadinimas</span>
-
             <input
               type="text"
               placeholder="Pvz. Sukurti profilio puslapį"
               value={title}
               onChange={(event) => setTitle(event.target.value)}
+              disabled={isSaving}
               required
             />
           </label>
-
           <label className="add-task__field">
             <span>Terminas</span>
-
             <input
               type="date"
               value={deadline}
               onChange={(event) => setDeadline(event.target.value)}
+              disabled={isSaving}
               required
             />
           </label>
-
           <label className="add-task__field">
             <span>Statusas</span>
-
             <select
               value={status}
               onChange={(event) => setStatus(event.target.value)}
+              disabled={isSaving}
             >
               <option value="Nepradėta">Nepradėta</option>
               <option value="Vykdoma">Vykdoma</option>
@@ -102,17 +121,19 @@ function AddTaskForm({ onAddTask }) {
             </select>
           </label>
 
+          {error && <p className="login-error" role="alert">{error}</p>}
+
           <div className="add-task__actions">
             <button
               type="button"
               className="add-task__cancel"
               onClick={handleCancel}
+              disabled={isSaving}
             >
               Atšaukti
             </button>
-
-            <button type="submit" className="add-task__submit">
-              Pridėti užduotį
+            <button type="submit" className="add-task__submit" disabled={isSaving}>
+              {isSaving ? "Saugoma..." : "Pridėti užduotį"}
             </button>
           </div>
         </form>

@@ -1,0 +1,76 @@
+.task-actions {
+  margin-top: 14px;
+}
+
+.task-actions__form,
+.task-actions__field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.task-actions__field {
+  color: var(--text);
+  font-size: 14px;
+}
+
+.task-actions__field input {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 9px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text-h);
+  font: inherit;
+}
+
+.task-actions__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.task-actions__buttons button {
+  padding: 7px 10px;
+  border: 1px solid var(--accent-border);
+  border-radius: 8px;
+  background: var(--accent-bg);
+  color: var(--accent);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.task-actions__buttons .task-actions__delete {
+  border-color: var(--border);
+  background: transparent;
+  color: var(--text);
+}
+
+.task-actions__buttons button:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--text-h);
+}
+
+.task-actions__buttons button:disabled,
+.task-actions__field input:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.task-actions__buttons button:focus-visible,
+.task-actions__field input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.task-actions__error {
+  margin: 10px 0 0;
+  color: #f3a4af;
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}

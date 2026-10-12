@@ -4,6 +4,7 @@ import ProgressBar from "./ProgressBar";
 import Navbar from "./Navbar";
 import AddTaskForm from "./AddTaskForm";
 import Profile from "./Profile";
+import { getTasks, deleteTask, updateTaskTitle } from "./tasksApi";
 import "./App.css";
 
 function App() {
@@ -18,27 +19,30 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loginError, setLoginError] = useState("");
 
-  const [tasks, setTasks] = useState([
-    {
-      id: 1,
-      title: "Sukurti prisijungimo formą",
-      status: "Atlikta",
-      deadline: "2026-10-01",
-    },
-    {
-      id: 2,
-      title: "Sukurti užduočių sąrašą",
-      status: "Vykdoma",
-      deadline: "2026-10-05",
-    },
-  ]);
+  const [tasks, setTasks] = useState([]);
+  const [tasksLoading, setTasksLoading] = useState(false);
+  const [tasksError, setTasksError] = useState("");
 
-  function handleSubmit(event) {
+  async function loadTasks() {
+    setTasksLoading(true);
+    setTasksError("");
+    try {
+      const savedTasks = await getTasks();
+      setTasks(savedTasks);
+    } catch (error) {
+      setTasksError(`Nepavyko užkrauti užduočių. ${error.message}`);
+    } finally {
+      setTasksLoading(false);
+    }
+  }
+
+  async function handleSubmit(event) {
     event.preventDefault();
 
     if (email === "admin" && password === "admin") {
       setIsLoggedIn(true);
       setLoginError("");
+      await loadTasks();
       return;
     }
 
@@ -47,6 +51,20 @@ function App() {
 
   function handleAddTask(newTask) {
     setTasks((currentTasks) => [...currentTasks, newTask]);
+  }
+
+  async function handleDeleteTask(taskId) {
+    await deleteTask(taskId);
+    setTasks((currentTasks) => currentTasks.filter((task) => task.id !== taskId));
+  }
+
+  async function handleTaskTitleChange(taskId, title) {
+    const savedTitle = await updateTaskTitle(taskId, title);
+    setTasks((currentTasks) =>
+      currentTasks.map((task) =>
+        task.id === taskId ? { ...task, title: savedTitle } : task,
+      ),
+    );
   }
 
   function handleTaskStatusChange(taskId, status) {
@@ -152,14 +170,27 @@ function App() {
                   </p>
                 </section>
 
-                <TaskList
-                  tasks={tasks}
-                  loading={false}
-                  onStatusChange={handleTaskStatusChange}
-                  onDeadlineChange={handleTaskDeadlineChange}
-                />
+                {tasksError ? (
+                  <section className="task-card">
+                    <p className="login-error" role="alert">{tasksError}</p>
+                    <button type="button" className="login-submit" onClick={loadTasks}>
+                      Bandyti dar kartą
+                    </button>
+                  </section>
+                ) : (
+                  <TaskList
+                    tasks={tasks}
+                    loading={tasksLoading}
+                    onStatusChange={handleTaskStatusChange}
+                    onDeadlineChange={handleTaskDeadlineChange}
+                    onDelete={handleDeleteTask}
+                    onTitleChange={handleTaskTitleChange}
+                  />
+                )}
 
-                <AddTaskForm onAddTask={handleAddTask} />
+                {!tasksLoading && !tasksError && (
+                  <AddTaskForm onAddTask={handleAddTask} />
+                )}
 
                 <ProgressBar initialProgress={50} />
               </>
